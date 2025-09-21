@@ -1,38 +1,283 @@
-.App {
-  text-align: center;
+/* ==========================
+   Global Theme & Background
+   ========================== */
+:root {
+  --bg: #0f172a;            /* slate-900 */
+  --panel: rgba(17,24,39,.6);/* semi "glass" */
+  --panel-border: rgba(148,163,184,.18);
+  --text: #e5e7eb;          /* gray-200 */
+  --muted: #9ca3af;         /* gray-400 */
+  --brand: #3b82f6;         /* blue-500 */
+  --brand-600: #2563eb;     /* blue-600 */
+  --accent: #8b5cf6;        /* violet-500 */
+  --accent-2: #06b6d4;      /* cyan-500 */
+  --danger: #ef4444;        /* red-500 */
+  --ok: #16a34a;            /* green-600 */
 }
 
-.App-logo {
-  height: 40vmin;
+html, body, #root { height: 100%; }
+
+/* Dynamic multi-layer gradient background */
+body {
+  color: var(--text);
+  background:
+    radial-gradient(1200px 800px at 10% 10%, rgba(31,64,104,.35) 0%, rgba(15,23,42,0) 70%),
+    radial-gradient(900px 700px at 90% 20%, rgba(96,165,250,.25) 0%, rgba(15,23,42,0) 60%),
+    linear-gradient(180deg, #0b1020, #0f172a);
+  background-attachment: fixed;
+  overflow-x: hidden;
+}
+
+/* Animated subtle hue overlay */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -10% -10% -10% -10%;
+  background: conic-gradient(from 0deg at 50% 50%, rgba(59,130,246,.12), rgba(139,92,246,.12), rgba(6,182,212,.12), rgba(59,130,246,.12));
+  animation: spinHue 30s linear infinite;
+  filter: blur(80px) saturate(130%);
+  z-index: 0;
   pointer-events: none;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+@keyframes spinHue {
+  to { transform: rotate(360deg); }
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+/* Floating blurred orbs for depth */
+.bg-blob {
+  position: fixed;
+  width: 380px; height: 380px;
+  background: radial-gradient(circle at 30% 30%, rgba(139,92,246,.35), rgba(59,130,246,0));
+  filter: blur(60px);
+  z-index: 0;
+  pointer-events: none;
+  animation: float 22s ease-in-out infinite;
+}
+.bg-blob.blob-2 { left: 70%; top: 8%; background: radial-gradient(circle at 60% 40%, rgba(6,182,212,.35), rgba(59,130,246,0)); animation-duration: 28s; }
+.bg-blob.blob-3 { left: -6%; top: 60%; background: radial-gradient(circle at 40% 60%, rgba(59,130,246,.3), rgba(139,92,246,0)); animation-duration: 26s; }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0) translateX(0) scale(1); opacity: .85; }
+  50% { transform: translateY(-20px) translateX(10px) scale(1.05); opacity: 1; }
+}
+
+/* Ensure content sits above background layers */
+#root, .nav, .container { position: relative; z-index: 1; }
+
+/* ==========================
+   Navigation (Glassmorphism)
+   ========================== */
+.nav {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  justify-content: space-between;
+  background: var(--panel);
+  border-bottom: 1px solid var(--panel-border);
+  padding: 12px 16px;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.25);
+}
+.nav a { margin-right: 14px; color: var(--text); opacity: 0.9; transition: opacity .2s ease; }
+.nav a:last-child { margin-right: 0; }
+.nav a:hover { color: #fff; opacity: 1; }
+.brand { font-weight: 800; color: #fff; letter-spacing: .4px; }
+.nav-right { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.linklike { background: none; border: none; color: var(--muted); cursor: pointer; }
+.linklike:hover { color: #fff; }
+
+/* ==========================
+   Layout & Containers
+   ========================== */
+.container {
+  max-width: 1100px;
+  margin: 28px auto;
+  padding: 0 16px;
 }
 
-.App-link {
-  color: #61dafb;
+.section { margin: 24px 0; }
+
+/* Cards with depth and 3D tilt support */
+.tilt { perspective: 1200px; }
+.tilt-inner {
+  transform-style: preserve-3d;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.card-3d {
+  background: linear-gradient(180deg, rgba(17,24,39,.75), rgba(17,24,39,.55));
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow:
+    0 10px 20px rgba(0,0,0,.35),
+    0 2px 6px rgba(0,0,0,.2) inset;
+}
+.card-3d:hover .tilt-inner { box-shadow: 0 16px 40px rgba(2,8,23,.6); }
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+@media (max-width: 980px) {
+  .cards-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .cards-grid { grid-template-columns: 1fr; }
+}
+
+/* ==========================
+   Typography
+   ========================== */
+.gradient-title {
+  font-size: clamp(28px, 3.2vw, 48px);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: .4px;
+  background: linear-gradient(90deg, #93c5fd, #c084fc, #67e8f9);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.subtle { color: var(--muted); }
+
+/* ==========================
+   Buttons & Form Inputs (Glass)
+   ========================== */
+.form {
+  display: grid;
+  gap: 12px;
+  background: linear-gradient(180deg, rgba(17,24,39,.75), rgba(17,24,39,.55));
+  padding: 18px;
+  border-radius: 14px;
+  border: 1px solid var(--panel-border);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+}
+label { display: grid; gap: 6px; font-size: 14px; color: var(--muted); }
+input, select, textarea {
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid rgba(148,163,184,.22);
+  background: rgba(2,6,23,.7);
+  color: #fff;
+  outline: none;
+  transition: border-color .2s ease, box-shadow .2s ease;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: rgba(59,130,246,.55);
+  box-shadow: 0 0 0 3px rgba(59,130,246,.25);
+}
+textarea { min-height: 120px; }
+
+button {
+  padding: 12px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(59,130,246,.45);
+  background: linear-gradient(180deg, var(--brand), var(--brand-600));
+  color: #fff; cursor: pointer;
+  box-shadow: 0 10px 18px rgba(37,99,235,.35);
+}
+button:hover { filter: brightness(1.05); }
+button[disabled] { opacity: .7; cursor: not-allowed; }
+
+/* ==========================
+   Lists & Cards
+   ========================== */
+.card { background: var(--panel); border: 1px solid var(--panel-border); border-radius: 14px; padding: 16px; }
+.list { margin-top: 16px; }
+.list ul { list-style: none; padding: 0; margin: 0; }
+.list li { padding: 12px 14px; border: 1px solid var(--panel-border); border-radius: 12px; margin-bottom: 10px; background: rgba(2,8,23,.7); }
+.list li.ok { border-color: rgba(22,163,74,.4); box-shadow: inset 0 0 0 1px rgba(34,197,94,.15); }
+.list li.bad { border-color: rgba(239,68,68,.4); box-shadow: inset 0 0 0 1px rgba(239,68,68,.15); }
+
+/* ==========================
+   Messages
+   ========================== */
+.error { color: #fecaca; background: rgba(239,68,68,.15); border: 1px solid rgba(239,68,68,.4); padding: 10px 12px; border-radius: 10px; }
+.info { color: #bbf7d0; background: rgba(34,197,94,.15); border: 1px solid rgba(34,197,94,.4); padding: 10px 12px; border-radius: 10px; }
+
+/* ==========================
+   Hero Section
+   ========================== */
+.hero {
+  display: grid;
+  align-items: center;
+  grid-template-columns: 1.2fr .8fr;
+  gap: 24px;
+}
+.hero .panel {
+  background: linear-gradient(180deg, rgba(17,24,39,.65), rgba(17,24,39,.45));
+  border: 1px solid var(--panel-border);
+  border-radius: 16px;
+  padding: 22px;
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 14px 40px rgba(2,8,23,.5);
+}
+.hero img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(2,8,23,.6);
+}
+@media (max-width: 900px) {
+  .hero { grid-template-columns: 1fr; }
+}
+
+/* ==========================
+   Payment 3D Credit Card
+   ========================== */
+.credit-card {
+  width: 340px;
+  height: 200px;
+  border-radius: 16px;
+  padding: 18px;
+  color: #fff;
+  background: linear-gradient(135deg, rgba(59,130,246,.85), rgba(139,92,246,.85));
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 18px 50px rgba(2,8,23,.6);
+  transform-style: preserve-3d;
+}
+.credit-card::before {
+  content: "";
+  position: absolute; inset: -40% -40% auto auto;
+  width: 360px; height: 360px;
+  background: radial-gradient(circle at 50% 50%, rgba(255,255,255,.25), rgba(255,255,255,0));
+  transform: translateZ(30px);
+}
+.credit-card .chip {
+  width: 44px; height: 34px; border-radius: 6px;
+  background: linear-gradient(180deg, #eab308, #b45309);
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,.25);
+  margin-bottom: 16px;
+  transform: translateZ(20px);
+}
+.credit-card .row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.credit-card .num { font-size: 20px; letter-spacing: 2px; transform: translateZ(18px); }
+.credit-card .meta { font-size: 12px; opacity: .9; transform: translateZ(16px); }
+
+/* ==========================
+   Background Canvas Layer
+   ========================== */
+.bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ==========================
+   Responsive tweaks
+   ========================== */
+@media (max-width: 600px) {
+  .nav-right { gap: 8px; }
+  .container { margin: 16px auto; }
 }
